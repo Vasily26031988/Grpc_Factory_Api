@@ -15,11 +15,11 @@ using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace PromoCodeFactory.WebHost
 {
-    public class Startup
+    public class GrpcStartUp   
     {
         public IConfiguration Configuration { get; }
 
-        public Startup(IConfiguration configuration)
+        public GrpcStartUp(IConfiguration configuration)
         {
             Configuration = configuration;
         }
