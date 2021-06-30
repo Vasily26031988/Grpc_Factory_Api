@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Google.Api;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using PromoCodeFactory.Core.Abstraction.Repositories;
@@ -11,67 +8,127 @@ using PromoCodeFactory.Core.Domain.PromoCodeManagement;
 using PromoCodeFactory.WebHost.Mappers;
 using PromoCodeFactory.WebHost.Models;
 
-namespace PromoCodeFactory.WebHost.GRPC
+namespace Otus.Teaching.PromoCodeFactory.WebHost.Grpc
 {
     public class CustomerService : CustomersService.CustomersServiceBase
     {
-	    private IRepository<Customer> _customerRepository;
-	    private IRepository<Preference> _preferenceRepository;
+        private IRepository<Customer> _customerRepository;
+        private IRepository<Preference> _preferenceRepository;
+        public CustomerService(IRepository<Customer> customerRepository, IRepository<Preference> preferenceRepository)
+        {
+            _customerRepository = customerRepository;
+            _preferenceRepository = preferenceRepository;
+        }
 
-	    public CustomerService(IRepository<Customer> customerRepository, IRepository<Preference> preferenceRepository)
-	    {
-		    _customerRepository = customerRepository;
-		    _preferenceRepository = preferenceRepository;
-	    }
+        public async override Task<GetAllCustomersResponse> GetAll(Empty request, ServerCallContext context)
+        {
+            var customers = await _customerRepository.GetAllAsync();
+            var response = new GetAllCustomersResponse();
+            var protoCustomers = from c in customers
+                                 select CustomerMapper.MapFromCustomer(c);
 
-	    public override async Task<GetAllCustomersResponse> GetAll(Empty request, ServerCallContext context)
-	    {
-		    var customers = await _customerRepository.GetAllAsync();
-		    var response = new GetAllCustomersResponse();
-		    var protoCustomers = from c in customers
-			    select Mappers.CustomerMapper.MapFromCustomer(c);
+            var customerResponse = new GetAllCustomersResponse();
 
-			var customerResponse = new GetAllCustomersResponse();
+            customerResponse.Customers.AddRange(protoCustomers);
 
-			customerResponse.Customers.AddRange(protoCustomers);
+            return customerResponse;
+        }
 
-			return customerResponse;
+        public async override Task<ProtoCustomer> GetCustomer(CustomerId request, ServerCallContext context)
+        {
+            var isValidId = Guid.TryParse(request.CustomerId_, out Guid customerId);
+            if (isValidId)
+            {
+                var customer = await _customerRepository.GetByIdAsync(customerId);
+                if (customer != null)
+                {
+                    return CustomerMapper.MapFromCustomer(customer);
+                }
+            }
+            return new ProtoCustomer();
+        }
 
-	    }
+        public async override Task<CustomerId> CreateCustomer(CreateCustomerRequest request, ServerCallContext context)
+        {
+            
+                var prefernces = from pref in request.PreferncesIds
+                                 select Guid.Parse(pref.ToString());
 
-	    public override async Task<ProtoCustomer> GetCustomer(CustomerId request, ServerCallContext context)
-	    {
-			var isValidId = Guid.TryParse(request.CustomerId_, out Guid customerId);
-			if (isValidId)
-			{
-				var customer = await _customerRepository.GetByIdAsync(customerId);
-				if (customer != null)
-				{
-					return Mappers.CustomerMapper.MapFromCustomer(customer);
-				}
-			}
-			return new ProtoCustomer();
-	    }
+                var preferences = await _preferenceRepository
+                        .GetRangeByIdsAsync(prefernces.ToList());
 
-		public override async Task<CustomerId> CreateCustomer(CreateCustomerRequest request, ServerCallContext context)
-		{
-			
-			
-				var preferences = from pref in request 
-					
-			
-			
+                var cutomerRequest = new CreateOrEditCustomerRequest
+                {
+                    FirstName = request.FirstName,
+                    LastName = request.LastName,
+                    Email = request.Email,
+                    PreferenceIds = new System.Collections.Generic.List<Guid>()
+                };
 
-		}
+                cutomerRequest.PreferenceIds.AddRange(prefernces);
 
-		public override Task<CustomerId> EditCustomer(EditCustomerRequest request, ServerCallContext context)
-	    {
-		    return base.EditCustomer(request, context);
-	    }
+                Customer customer = CustomerMapper.MapFromModel(cutomerRequest, preferences);
 
-	    public override Task<CustomerId> DeleteCustomer(CustomerId request, ServerCallContext context)
-	    {
-		    return base.DeleteCustomer(request, context);
-	    }
+                await _customerRepository.AddAsync(customer);
+
+                return new CustomerId
+                {
+                    CustomerId_ = customer.Id.ToString()
+                };
+            
+            
+
+        }
+
+        public async override Task<CustomerId> EditCustomer(EditCustomerRequest request, ServerCallContext context)
+        {
+
+            
+                var customer = await _customerRepository.GetByIdAsync(Guid.Parse(request.Id));
+                var prefernces = from pref in request.PreferncesIds
+                                 select Guid.Parse(pref.ToString());
+
+                var preferences = await _preferenceRepository
+                        .GetRangeByIdsAsync(prefernces.ToList());
+
+                var cutomerRequest = new CreateOrEditCustomerRequest
+                {
+                    FirstName = request.FirstName,
+                    LastName = request.LastName,
+                    Email = request.Email,
+                    PreferenceIds = new System.Collections.Generic.List<Guid>()
+                };
+
+                cutomerRequest.PreferenceIds.AddRange(prefernces);
+
+                Customer newCustomer = CustomerMapper.MapFromModel(cutomerRequest, preferences, customer);
+
+                await _customerRepository.AddAsync(newCustomer);
+
+                return new CustomerId
+                {
+                    CustomerId_ = customer.Id.ToString()
+                };
+        
+            
+        }
+
+        public async override Task<CustomerId> DeleteCustomer(CustomerId request, ServerCallContext context)
+        {
+            try
+            {
+                var id = Guid.Parse(request.CustomerId_);
+                var customer = await _customerRepository.GetByIdAsync(id);
+                await _customerRepository.DeleteAsync(customer);
+                return new CustomerId
+                {
+                    CustomerId_ = customer.Id.ToString()
+                };
+            }
+            catch (System.Exception ex)
+            {
+                throw new Exception();
+            }
+        }
     }
 }

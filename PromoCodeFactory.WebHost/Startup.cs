@@ -12,13 +12,14 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 using Grpc;
+using Otus.Teaching.PromoCodeFactory.WebHost.Grpc;
 using PromoCodeFactory.Core.Abstraction.Gateways;
 using PromoCodeFactory.Core.Abstraction.Repositories;
 using PromoCodeFactory.DataAccess;
 using PromoCodeFactory.DataAccess.Data;
 using PromoCodeFactory.DataAccess.Repositories;
 using PromoCodeFactory.Integration;
-using PromoCodeFactory.WebHost.GRPC;
+
 
 namespace PromoCodeFactory.WebHost
 {
