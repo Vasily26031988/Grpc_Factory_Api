@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Protobuf Include="Protos\*.proto" />
+  </ItemGroup>
+
+
+  <ItemGroup>
     <ProjectReference Include="..\PromoCodeFactory.Core\PromoCodeFactory.Core.csproj" />
     <ProjectReference Include="..\PromoCodeFactory.DataAccess\PromoCodeFactory.DataAccess.csproj" />
     <ProjectReference Include="..\PromoCodeFactory.Integration\PromoCodeFactory.Integration.csproj" />
@@ -14,19 +19,20 @@
 
   <ItemGroup>
     <PackageReference Include="EFCore.NamingConventions" Version="5.0.2" />
-    <PackageReference Include="Google.Protobuf" Version="3.17.3" />
+    <PackageReference Include="Google.protobuf" Version="3.17.3" />
     <PackageReference Include="Grpc" Version="2.38.1" />
-    <PackageReference Include="Grpc.AspNetCore" Version="2.38.0" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.35.0" />
     <PackageReference Include="Grpc.Tools" Version="2.38.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="HotChocolate.AspNetCore" Version="11.3.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Grpc.HttpApi" Version="0.1.0-alpha.21317.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="5.0.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.7" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.7" />
     <PackageReference Include="NSwag.AspNetCore" Version="13.11.3" />
+    <PackageReference Include="NSwag.Core" Version="13.11.3" />
   </ItemGroup>
 
 </Project>

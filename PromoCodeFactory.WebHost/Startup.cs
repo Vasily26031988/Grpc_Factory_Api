@@ -1,21 +1,28 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Castle.Core.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
+using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
+using Grpc;
 using PromoCodeFactory.Core.Abstraction.Gateways;
 using PromoCodeFactory.Core.Abstraction.Repositories;
 using PromoCodeFactory.DataAccess;
 using PromoCodeFactory.DataAccess.Data;
 using PromoCodeFactory.DataAccess.Repositories;
 using PromoCodeFactory.Integration;
-using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
+using PromoCodeFactory.WebHost.GRPC;
 
 namespace PromoCodeFactory.WebHost
 {
-    public class GrpcStartUp   
+    public class GrpcStartUp
     {
         public IConfiguration Configuration { get; }
 
@@ -28,14 +35,16 @@ namespace PromoCodeFactory.WebHost
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+
+            services.AddGrpc();
             services.AddControllers().AddMvcOptions(x =>
                 x.SuppressAsyncSuffixInActionNames = false);
-			services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
-			services.AddScoped<INotificationGateway, NotificationGateway>();
+            services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
+            services.AddScoped<INotificationGateway, NotificationGateway>();
             services.AddScoped<IDbInitializer, EfDbInitializer>();
             services.AddDbContext<DataContext>(x =>
             {
-                x.UseSqlite("Filename=PromoCodeFactoryDb");
+                x.UseSqlite("Filename=PromoCodeFactoryDb.sqlite");
                 //x.UseNpgsql(Configuration.GetConnectionString("PromoCodeFactoryDb"));
                 x.UseSnakeCaseNamingConvention();
                 x.UseLazyLoadingProxies();
@@ -72,7 +81,8 @@ namespace PromoCodeFactory.WebHost
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                endpoints.MapGrpcService<CustomerService>();
+
             });
 
             dbInitializer.InitializeDb();

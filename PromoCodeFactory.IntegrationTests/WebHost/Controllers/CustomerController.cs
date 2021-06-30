@@ -22,12 +22,12 @@ namespace PromoCodeFactory.IntegrationTests.Api.WebHost.Controllers
 
     public class CustomersControllerTests
         //: IClassFixture<WebApplicationFactory<Startup>> // Postgres
-        : IClassFixture<TestWebApplicationFactory<Startup>> // SqlLite
+        : IClassFixture<TestWebApplicationFactory<GrpcStartUp>> // SqlLite
     {
-        private readonly WebApplicationFactory<Startup> _factory;
+        private readonly WebApplicationFactory<GrpcStartUp> _factory;
 
         public CustomersControllerTests(
-            WebApplicationFactory<Startup> factory  // Postgres
+            WebApplicationFactory<GrpcStartUp> factory  // Postgres
                                                     //TestWebApplicationFactory<Startup> factory // SqlLite
             )
         {
