@@ -70,13 +70,13 @@ namespace PromoCodeFactory.WebHost
                 app.UseHsts();
             }
 
-            app.UseOpenApi();
-            app.UseSwaggerUi3(x =>
-            {
-                x.DocExpansion = "list";
-            });
+			app.UseOpenApi();
+			app.UseSwaggerUi3(x =>
+			{
+				x.DocExpansion = "list";
+			});
 
-            app.UseHttpsRedirection();
+			app.UseHttpsRedirection();
 
             app.UseRouting();
 

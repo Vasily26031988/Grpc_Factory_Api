@@ -75,9 +75,7 @@ namespace Otus.Teaching.PromoCodeFactory.WebHost.Grpc
                 {
                     CustomerId_ = customer.Id.ToString()
                 };
-            
-            
-
+                
         }
 
         public async override Task<CustomerId> EditCustomer(EditCustomerRequest request, ServerCallContext context)
@@ -115,8 +113,7 @@ namespace Otus.Teaching.PromoCodeFactory.WebHost.Grpc
 
         public async override Task<CustomerId> DeleteCustomer(CustomerId request, ServerCallContext context)
         {
-            try
-            {
+            
                 var id = Guid.Parse(request.CustomerId_);
                 var customer = await _customerRepository.GetByIdAsync(id);
                 await _customerRepository.DeleteAsync(customer);
@@ -124,11 +121,8 @@ namespace Otus.Teaching.PromoCodeFactory.WebHost.Grpc
                 {
                     CustomerId_ = customer.Id.ToString()
                 };
-            }
-            catch (System.Exception ex)
-            {
-                throw new Exception();
-            }
+            
+            
         }
     }
 }

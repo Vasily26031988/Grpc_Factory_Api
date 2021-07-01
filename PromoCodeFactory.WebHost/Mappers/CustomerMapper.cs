@@ -8,7 +8,7 @@ using PromoCodeFactory.WebHost.Models;
 
 namespace PromoCodeFactory.WebHost.Mappers
 {
-	public class CustomerMapper
+	public static class CustomerMapper
 	{
 		public static Customer MapFromModel(CreateOrEditCustomerRequest model, IEnumerable<Preference> preferences,
 			Customer customer = null)
